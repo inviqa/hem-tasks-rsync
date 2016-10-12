@@ -42,7 +42,7 @@ namespace :deps do
 
     desc 'Download the vendor directory from the guest to the host'
     task :vendor_directory_from_guest do
-      Hem.ui.title "Downloading vendor directory changes from guest"
+      Hem.ui.title 'Downloading vendor directory changes from guest'
 
       Rake::Task['vm:sync_guest_changes'].execute(
         from_path: 'vendor/',

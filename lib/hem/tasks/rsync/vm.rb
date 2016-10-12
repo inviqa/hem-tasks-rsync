@@ -7,9 +7,9 @@ namespace :vm do
   desc 'Trigger a sync to occur for rsync mountpoints'
   task :rsync_mount_sync do
     vagrantfile do
-      Hem.ui.title "Syncing directories"
+      Hem.ui.title 'Syncing directories'
       vagrant_exec 'rsync'
-      Hem.ui.success("Vendor directory synced")
+      Hem.ui.success('Vendor directory synced')
     end
   end
 
@@ -17,7 +17,7 @@ namespace :vm do
   argument :from_path
   argument :to_path
   argument 'is_reverse', optional: true, default: false
-  task :rsync_manual do |task_name, args|
+  task :rsync_manual do |_task_name, args|
     from_path = args[:from_path]
     to_path = args[:to_path]
 
@@ -34,7 +34,7 @@ namespace :vm do
       rsync_command = "if [ -e '#{from_path}' ]; then rsync -az -e '%s' '#{from_path}' '#{hostname}:#{to_path}'; else echo 'Failed to find source file, skipping'; fi"
     end
 
-    args = [ rsync_command, { local: true, realtime: true, indent: 2, on: :host, pwd: Hem.project_path } ]
+    args = [rsync_command, { local: true, realtime: true, indent: 2, on: :host, pwd: Hem.project_path }]
     require_relative File.join('..', '..', 'lib', 'vm', 'ReverseCommand')
     Hem::Lib::Vm::ReverseCommand.new(*args).run
 
@@ -45,7 +45,7 @@ namespace :vm do
   argument :from_path
   argument :to_path
   argument :deciding_file_path
-  task :sync_guest_changes do |task_name, args|
+  task :sync_guest_changes do |_task_name, args|
     Hem.ui.title "Determining if #{args[:deciding_file_path]} is newer on the host or guest"
 
     local_file_path = File.join(Hem.project_path, args[:deciding_file_path])
@@ -79,10 +79,10 @@ namespace :vm do
     end
   end
 
-  desc "Provision VM via files and shell scripts only"
+  desc 'Provision VM via files and shell scripts only'
   task :provision_shell do
     vagrantfile do
-      Hem.ui.title "Provisioning VM via files and shell scripts only"
+      Hem.ui.title 'Provisioning VM via files and shell scripts only'
       vagrant_exec 'provision', '--provision-with', 'shell,file'
       Hem.ui.separator
     end
