@@ -31,7 +31,8 @@ namespace :vm do
       rsync_command = "rsync -az -e '%s' '#{hostname}:#{from_path}' '#{to_path}'" if remote_file_exists == '1'
       rsync_command = "echo 'Failed to find source file, skipping'" unless rsync_command
     else
-      rsync_command = "if [ -e '#{from_path}' ]; then rsync -az -e '%s' '#{from_path}' '#{hostname}:#{to_path}'; else echo 'Failed to find source file, skipping'; fi"
+      rsync_command = "if [ -e '#{from_path}' ]; then rsync -az -e '%s' '#{from_path}' '#{hostname}:#{to_path}'; else "\
+                      "echo 'Failed to find source file, skipping'; fi"
     end
 
     args = [rsync_command, { local: true, realtime: true, indent: 2, on: :host, pwd: Hem.project_path }]
@@ -53,7 +54,8 @@ namespace :vm do
     local_file_modified = File.mtime(local_file_path).to_i if File.exist? local_file_path
 
     remote_file_path = File.join(Hem.project_config.vm.project_mount_path, args[:deciding_file_path])
-    remote_file_modified = run "if [ -e '#{remote_file_path}' ]; then stat -c \%Y '#{remote_file_path}' ; fi", capture: true
+    remote_file_modified = run "if [ -e '#{remote_file_path}' ]; then stat -c \%Y '#{remote_file_path}' ; fi",
+                               capture: true
 
     if local_file_modified.to_i < remote_file_modified.to_i
       Hem.ui.success("Guest file #{args[:deciding_file_path]} is newer, syncing to host")

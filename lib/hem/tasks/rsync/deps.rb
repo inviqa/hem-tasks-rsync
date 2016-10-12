@@ -51,7 +51,7 @@ namespace :deps do
       )
     end
 
-    desc 'Reload the VM to pick up new mountpoints or sync directories depending on what mountpoints there are currently'
+    desc 'Reload the VM to use NFS mounts per directory, or sync rsync mounts if already enabled'
     task :reload_or_sync do
       one_mount_point = run 'grep "/vagrant " /proc/mounts || true', capture: true
       if one_mount_point != ''
