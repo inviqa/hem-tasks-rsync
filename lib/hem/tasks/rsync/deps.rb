@@ -12,6 +12,8 @@ namespace :deps do
 
     Rake::Task['tools:composer'].invoke
 
+    Rake::Task['deps:sync:composer_files_to_guest'].execute
+
     packages = args[:packages].map(&:shellescape).join(' ')
 
     Hem.ui.title 'Updating composer dependencies'
