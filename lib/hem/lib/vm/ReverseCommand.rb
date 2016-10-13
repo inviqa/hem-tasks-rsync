@@ -30,7 +30,7 @@ module Hem
           config.write @@vm_inspector.ssh_config
           config.close
 
-          return config
+          config
         end
 
         def ssh_command(config)

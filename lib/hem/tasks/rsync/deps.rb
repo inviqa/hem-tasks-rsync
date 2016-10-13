@@ -28,14 +28,7 @@ namespace :deps do
     task :composer_files_to_guest do
       Hem.ui.title 'Uploading composer files to guest'
 
-      Rake::Task['vm:rsync_manual'].execute(
-        from_path: File.join(Hem.project_path, 'composer.json'),
-        to_path: File.join(Hem.project_config.vm.project_mount_path, 'composer.json')
-      )
-      Rake::Task['vm:rsync_manual'].execute(
-        from_path: File.join(Hem.project_path, 'composer.lock'),
-        to_path: File.join(Hem.project_config.vm.project_mount_path, 'composer.lock')
-      )
+      Rake::Task['vm:upload_root_files_to_guest'].invoke
 
       Hem.ui.success('Uploaded composer files to guest')
     end
@@ -47,7 +40,8 @@ namespace :deps do
       Rake::Task['vm:sync_guest_changes'].execute(
         from_path: 'vendor/',
         to_path: 'vendor',
-        deciding_file_path: File.join('vendor', 'autoload.php')
+        deciding_file_path: File.join('vendor', 'autoload.php'),
+        guest_to_host_allowed: false
       )
     end
 
