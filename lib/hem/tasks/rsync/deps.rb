@@ -5,6 +5,53 @@ before 'deps:composer', 'deps:sync:composer_files_to_guest'
 after 'deps:composer', 'deps:sync:reload_or_sync'
 
 namespace :deps do
+  desc "Update composer dependencies"
+  argument :packages, optional: true, default: {}, as: Array
+  task :composer_update do |task_name, args|
+    unless File.exists? File.join(Hem.project_path, "composer.json")
+      next
+    end
+
+    Rake::Task["tools:composer"].invoke
+
+    packages = args[:packages].map{ |pkg| pkg.shellescape }.join(' ')
+
+    Hem.ui.title "Updating composer dependencies"
+    Dir.chdir Hem.project_path do
+      ansi = Hem.ui.supports_color? ? '--ansi' : ''
+      args = [ "php bin/composer.phar update #{packages} #{ansi} --prefer-dist", { realtime: true, indent: 2 } ]
+      complete = false
+
+      unless maybe(Hem.project_config.tasks.deps.composer.disable_host_run)
+        check = Hem::Lib::HostCheck.check(:filter => /php_present/)
+
+        if check[:php_present] == :ok
+          begin
+            shell(*args)
+
+            Rake::Task['deps:sync:composer_files_to_guest'].execute
+            Rake::Task['vm:rsync_mount_sync'].execute
+
+            complete = true
+          rescue Hem::ExternalCommandError
+            Hem.ui.warning "Updating composer dependencies locally failed!"
+          end
+        end
+      end
+
+      unless complete
+        run(*args)
+
+        Rake::Task['deps:sync:composer_files_from_guest'].execute
+        Rake::Task['deps:sync:vendor_directory_from_guest'].execute
+      end
+
+      Hem.ui.success "Composer dependencies updated"
+    end
+
+    Hem.ui.separator
+  end
+
   desc 'Syncing dependencies to/from the VM'
   namespace :sync do
     desc 'Download the composer.json and lock from the guest to the host'
