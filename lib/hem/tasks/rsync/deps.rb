@@ -5,25 +5,23 @@ before 'deps:composer', 'deps:sync:composer_files_to_guest'
 after 'deps:composer', 'deps:sync:reload_or_sync'
 
 namespace :deps do
-  desc "Update composer dependencies"
+  desc 'Update composer dependencies'
   argument :packages, optional: true, default: {}, as: Array
-  task :composer_update do |task_name, args|
-    unless File.exists? File.join(Hem.project_path, "composer.json")
-      next
-    end
+  task :composer_update do |_task_name, args|
+    next unless File.exist? File.join(Hem.project_path, 'composer.json')
 
-    Rake::Task["tools:composer"].invoke
+    Rake::Task['tools:composer'].invoke
 
-    packages = args[:packages].map{ |pkg| pkg.shellescape }.join(' ')
+    packages = args[:packages].map(&:shellescape).join(' ')
 
-    Hem.ui.title "Updating composer dependencies"
+    Hem.ui.title 'Updating composer dependencies'
     Dir.chdir Hem.project_path do
       ansi = Hem.ui.supports_color? ? '--ansi' : ''
-      args = [ "php bin/composer.phar update #{packages} #{ansi} --prefer-dist", { realtime: true, indent: 2 } ]
+      args = ["php bin/composer.phar update #{packages} #{ansi} --prefer-dist", { realtime: true, indent: 2 }]
       complete = false
 
       unless maybe(Hem.project_config.tasks.deps.composer.disable_host_run)
-        check = Hem::Lib::HostCheck.check(:filter => /php_present/)
+        check = Hem::Lib::HostCheck.check(filter: /php_present/)
 
         if check[:php_present] == :ok
           begin
@@ -34,7 +32,7 @@ namespace :deps do
 
             complete = true
           rescue Hem::ExternalCommandError
-            Hem.ui.warning "Updating composer dependencies locally failed!"
+            Hem.ui.warning 'Updating composer dependencies locally failed!'
           end
         end
       end
@@ -46,7 +44,7 @@ namespace :deps do
         Rake::Task['deps:sync:vendor_directory_from_guest'].execute
       end
 
-      Hem.ui.success "Composer dependencies updated"
+      Hem.ui.success 'Composer dependencies updated'
     end
 
     Hem.ui.separator
