@@ -20,45 +20,45 @@ module Hem
             full_command(pwd_set_command, vm_command, ssh_command)
           ].compact.join(' | ')
         end
-      end
 
-      private
+        private
 
-      def ssh_config
-        require 'tempfile'
+        def ssh_config
+          require 'tempfile'
 
-        config = ::Tempfile.new 'hem_ssh_config'
-        config.write @@vm_inspector.ssh_config
-        config.close
+          config = ::Tempfile.new 'hem_ssh_config'
+          config.write @@vm_inspector.ssh_config
+          config.close
 
-        config
-      end
+          return config
+        end
 
-      def ssh_command(config)
-        psuedo_tty = @opts[:psuedo_tty] ? '-t' : ''
-        [
-          'ssh',
-          "-F #{config.path.shellescape}",
-          psuedo_tty
-        ].reject(&:empty?).join(' ')
-      end
+        def ssh_command(config)
+          psuedo_tty = @opts[:psuedo_tty] ? '-t' : ''
+          [
+            'ssh',
+            "-F #{config.path.shellescape}",
+            psuedo_tty
+          ].reject(&:empty?).join(' ')
+        end
 
-      def pwd_set_command
-        "cd #{@opts[:pwd].shellescape}; exec /bin/bash"
-      end
+        def pwd_set_command
+          "cd #{@opts[:pwd].shellescape}; exec /bin/bash"
+        end
 
-      def vm_command
-        [
-          @pipe_in_vm.nil? ? nil : @pipe_in_vm.gsub(/(\\+)/, '\\\\\1'),
-          @command
-        ].compact.join(' | ')
-      end
+        def vm_command
+          [
+            @pipe_in_vm.nil? ? nil : @pipe_in_vm.gsub(/(\\+)/, '\\\\\1'),
+            @command
+          ].compact.join(' | ')
+        end
 
-      def full_command(pwd_set_command, vm_command, ssh_command)
-        [
-          pwd_set_command,
-          vm_command.empty? ? nil : (vm_command % ssh_command).shellescape
-        ].compact.join(' -c ') + @opts[:append].shellescape
+        def full_command(pwd_set_command, vm_command, ssh_command)
+          [
+            pwd_set_command,
+            vm_command.empty? ? nil : (vm_command % ssh_command).shellescape
+          ].compact.join(' -c ') + @opts[:append].shellescape
+        end
       end
     end
   end
