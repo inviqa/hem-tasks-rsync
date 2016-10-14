@@ -97,6 +97,8 @@ namespace :deps do
       one_mount_point = run 'grep "/vagrant " /proc/mounts || true', capture: true
       if one_mount_point != ''
         Rake::Task['vm:reload'].execute
+        Rake::Task['vm:provision_shell'].execute
+        Rake::Task['vm:upload_root_files_to_guest'].execute
       else
         Rake::Task['deps:sync:vendor_directory_from_guest'].execute
         Rake::Task['vm:rsync_mount_sync'].execute
