@@ -86,7 +86,7 @@ namespace :vm do
   argument :from_path
   argument :to_path
   argument :deciding_file_path
-  argument :guest_to_host_allowed, optional: true, default: true
+  argument :host_to_guest_allowed, optional: true, default: true
   task :sync_guest_changes do |_task_name, args|
     Hem.ui.title "Determining if #{args[:deciding_file_path]} is newer on the host or guest"
 
@@ -108,7 +108,7 @@ namespace :vm do
         to_path: to_path,
         is_reverse: true
       )
-    elsif args[:guest_to_host_allowed] && local_file_modified.to_i > remote_file_modified.to_i
+    elsif args[:host_to_guest_allowed] && local_file_modified.to_i > remote_file_modified.to_i
       Hem.ui.success("Host file #{args[:deciding_file_path]} is newer, syncing to guest")
       from_path = File.join(Hem.project_path, args[:to_path])
       to_path = File.join(Hem.project_config.vm.project_mount_path, args[:from_path])
@@ -117,7 +117,7 @@ namespace :vm do
         from_path: from_path,
         to_path: to_path
       )
-    elsif !args[:guest_to_host_allowed]
+    elsif !args[:host_to_guest_allowed]
       Hem.ui.success('Host is more up to date than the guest but syncing via another method')
     else
       Hem.ui.success("Host and guest file #{args[:deciding_file_path]} are up to date, not doing anything")
