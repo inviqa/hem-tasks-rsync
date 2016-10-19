@@ -88,8 +88,20 @@ namespace :deps do
         from_path: 'vendor/',
         to_path: 'vendor',
         deciding_file_path: File.join('vendor', 'autoload.php'),
-        guest_to_host_allowed: false
+        host_to_guest_allowed: false
       )
+    end
+
+    desc 'Upload the vendor directory from the host to the guest'
+    task :vendor_directory_to_guest do
+      Hem.ui.title 'Uploading vendor directory changes to guest'
+
+      Rake::Task['vm:rsync_manual'].execute(
+        from_path: 'vendor/',
+        to_path: 'vendor'
+      )
+
+      Hem.ui.success('Uploaded vendor directory changes to guest')
     end
 
     desc 'Reload the VM to use NFS mounts per directory, or sync rsync mounts if already enabled'
