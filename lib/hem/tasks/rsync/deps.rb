@@ -3,6 +3,7 @@
 
 before 'deps:composer', 'deps:sync:composer_files_to_guest'
 after 'deps:composer', 'deps:sync:reload_or_sync'
+after 'deps:composer', 'deps:composer_preload'
 
 namespace :deps do
   desc 'Update composer dependencies'
@@ -50,6 +51,13 @@ namespace :deps do
     end
 
     Hem.ui.separator
+  end
+
+  desc 'Preload the composer files into file system cache'
+  task :composer_preload do
+    Hem.ui.title 'Composer PHP files loading into file system cache'
+    run 'find vendor -type f -name "*.php" -exec cat {} > /dev/null +', realtime: true
+    Hem.ui.success 'Composer PHP files loaded into file system cache'
   end
 
   desc 'Syncing dependencies to/from the VM'
