@@ -28,6 +28,8 @@ namespace :vm do
 
     next unless files
 
+    run "sudo chown apache:vagrant '#{Hem.project_config.vm.project_mount_path}'", realtime: true
+
     rsync_command = <<-COMMAND
       find '.' -type f -maxdepth 1 -print0 | \
       rsync --files-from=- --from0 --human-readable --progress \
