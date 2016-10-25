@@ -81,10 +81,10 @@ namespace :deps do
 
       Rake::Task['vm:sync_guest_changes'].execute(
         from_path: 'vendor/',
-        to_path: 'vendor',
-        deciding_file_path: File.join('vendor', 'autoload.php'),
-        host_to_guest_allowed: false
+        to_path: 'vendor'
       )
+
+      Hem.ui.success('Downloaded vendor directory changes from guest')
     end
 
     desc 'Upload the vendor directory from the host to the guest'

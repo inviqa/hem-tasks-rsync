@@ -52,6 +52,8 @@ namespace :vm do
   argument :deciding_file_path
   argument :host_to_guest_allowed, optional: true, default: true
   task :sync_guest_changes do |_task_name, args|
+    args[:host_to_guest_allowed] = true unless args.key? :host_to_guest_allowed
+
     Hem.ui.title "Determining if #{args[:deciding_file_path]} is newer on the host or guest"
 
     local_file_path = File.join(Hem.project_path, args[:deciding_file_path])
@@ -74,8 +76,8 @@ namespace :vm do
       )
     elsif args[:host_to_guest_allowed] && local_file_modified.to_i > remote_file_modified.to_i
       Hem.ui.success("Host file #{args[:deciding_file_path]} is newer, syncing to guest")
-      from_path = File.join(Hem.project_path, args[:to_path])
-      to_path = File.join(Hem.project_config.vm.project_mount_path, args[:from_path])
+      from_path = File.join(Hem.project_path, args[:from_path])
+      to_path = File.join(Hem.project_config.vm.project_mount_path, args[:to_path])
 
       Rake::Task['vm:rsync_manual'].execute(
         from_path: from_path,
