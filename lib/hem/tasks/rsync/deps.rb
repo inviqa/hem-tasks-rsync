@@ -50,10 +50,12 @@ namespace :deps do
   desc 'Preload the composer files into file system cache'
   task :composer_preload do
     Hem.ui.title 'Composer PHP files loading into file system cache'
-    run 'if [ -e vendor ]; then '\
-          'find vendor -type f ( -name "*.php" -o -name "*.xml" ) -exec cat {} > /dev/null + ;'\
-        'fi',
-        realtime: true
+    command = <<-COMMAND
+        if [ -e vendor ]; then \
+          find vendor -type f -name "*.php" -exec cat {} > /dev/null + ; \
+        fi
+        COMMAND
+    run command, realtime: true
     Hem.ui.success 'Composer PHP files loaded into file system cache'
   end
 
