@@ -2,47 +2,9 @@
 # ^ Syntax hint
 
 after 'vm:reload', 'vm:provision_shell'
-after 'vm:reload', 'vm:upload_root_files_to_guest'
 after 'vm:start', 'vm:provision_shell'
-after 'vm:start', 'vm:upload_root_files_to_guest'
 
 namespace :vm do
-  desc 'Trigger a sync to occur for rsync mountpoints'
-  task :rsync_mount_sync do
-    vagrantfile do
-      Hem.ui.title 'Syncing directories'
-      vagrant_exec 'rsync'
-      Hem.ui.success('Vendor directory synced')
-    end
-  end
-
-  desc 'Rsync any files in the project root the guest'
-  task :upload_root_files_to_guest do
-    one_mount_point = run 'grep "/vagrant " /proc/mounts || true', capture: true
-    next unless one_mount_point == ''
-
-    Hem.ui.title 'Uploading project root files to the guest'
-
-    files = shell "find '#{Hem.project_path}' -type f -maxdepth 1 -print0",
-                  local: true, on: :host, capture: true, pwd: Hem.project_path
-
-    next unless files
-
-    run "sudo chown vagrant:vagrant '#{Hem.project_config.vm.project_mount_path}'", realtime: true
-
-    rsync_command = <<-COMMAND
-      find '.' -type f -maxdepth 1 -print0 | \
-      rsync --files-from=- --from0 --human-readable --progress \
-      --verbose --compress --archive --rsh='%s' \
-      '#{Hem.project_path}' 'default:#{Hem.project_config.vm.project_mount_path}'
-      COMMAND
-    args = [rsync_command, { local: true, realtime: true, indent: 2, on: :host, pwd: Hem.project_path }]
-    require_relative File.join('..', '..', 'lib', 'vm', 'ReverseCommand')
-    Hem::Lib::Vm::ReverseCommand.new(*args).run
-
-    Hem.ui.success 'Uploaded project root files to the guest'
-  end
-
   desc 'Rsync from host to guest, or if in reverse mode, from guest to host'
   argument :from_path
   argument :to_path
