@@ -7,7 +7,7 @@ module Rake
 
       Hem::Metadata.to_store task_name
       task task_name => new_tasks | old_task.prerequisites do
-        new_task.call unless new_task.nil?
+        yield unless new_task.nil?
         old_task.invoke
       end
     end
