@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # ^ Syntax hint
 
+require_relative 'vm'
+
 after 'vm:provision_shell', 'deps:composer_preload'
 after 'deps:composer', 'deps:sync:vendor_directory'
 after 'deps:composer', 'deps:composer_preload'
